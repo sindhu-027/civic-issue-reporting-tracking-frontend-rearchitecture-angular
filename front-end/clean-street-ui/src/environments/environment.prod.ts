@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:5000/api',
-  socketUrl: 'http://localhost:5000'
+  socketUrl: 'https://civic-issue-reporting-tracking-frontend.onrender.com',
+  apiUrl: 'https://civic-issue-reporting-tracking-frontend.onrender.com/api'
 };
-//apiUrl: 'https://your-production-api.com/api'
