@@ -1,0 +1,443 @@
+<div class="min-h-screen bg-gray-100">
+
+  <!-- NAVBAR -->
+  <header class="flex justify-between items-center px-6 py-4 bg-white shadow">
+    <div class="flex items-center gap-2">
+      <img src="/assets/images/logo.png" class="w-6 h-6">
+      <span class="font-bold text-xl">CleanStreet</span>
+    </div>
+
+    <!-- NAV LINKS -->
+    <nav class="flex flex-wrap justify-center md:justify-start space-x-4 md:space-x-8 text-gray-700">
+      <a routerLink="/dashboard" routerLinkActive="text-blue-600 font-bold" class="hover:underline font-medium">
+        Dashboard
+      </a>
+      <a routerLink="/report" routerLinkActive="text-blue-600 font-bold" class="hover:underline font-medium">
+        Report Issue
+      </a>
+      <a routerLink="/complaints" routerLinkActive="text-blue-600 font-bold" class="hover:underline font-medium">
+        View Complaints
+      </a>
+      <a routerLink="/admin-logs" routerLinkActive="text-blue-600 font-bold" class="hover:underline font-medium">
+        Admin Logs
+      </a>
+    </nav>
+
+    <!-- PROFILE -->
+    
+    <div class="flex items-center gap-4">
+
+  <div
+    class="flex items-center gap-2 cursor-pointer"
+    (click)="goToProfile()"
+  >
+
+    <!-- Show uploaded image -->
+    <img
+      *ngIf="user?.profilePic; else profileIcon"
+      [src]="user.profilePic"
+      class="w-8 h-8 rounded-full object-cover"
+      alt="Profile"
+    />
+
+    <!-- FontAwesome icon fallback -->
+    <ng-template #profileIcon>
+      <fa-icon
+        [icon]="icons.profile"
+        class="text-2xl text-gray-500"
+      ></fa-icon>
+    </ng-template>
+
+    <span class="font-medium">
+      {{ user?.username || 'Admin' }}
+    </span>
+
+  </div>
+
+  <button
+    class="bg-blue-500 text-white px-4 py-1 rounded"
+    (click)="logout()"
+  >
+    Sign out
+  </button>
+
+</div>
+
+
+  </header>
+
+  <!-- HERO -->
+  <div class="mx-6 mt-2">
+    <div
+      class="w-full h-40 rounded-2xl bg-cover bg-center flex items-center px-6 text-white"
+      style="background-image: url('/assets/images/dashboard-bg.png')"
+    >
+      <div>
+        <h2 class="text-2xl font-semibold">Keep Our City Clean Together</h2>
+        <p class="text-sm mt-1">
+          Report issues, track progress, and help maintain our community
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="flex justify-center bg-white border-b mt-4">
+    <button
+      (click)="activeTab='overview'"
+      class="px-6 py-3 border-b-4"
+      [class.border-green-600]="activeTab==='overview'"
+    >Overview</button>
+
+    <button
+      (click)="activeTab='manageUsers'"
+      class="px-6 py-3 border-b-4"
+      [class.border-green-600]="activeTab==='manageUsers'"
+    >Manage Users</button>
+
+    <button
+      (click)="activeTab='viewComplaints'"
+      class="px-6 py-3 border-b-4"
+      [class.border-green-600]="activeTab==='viewComplaints'"
+    >View Complaints</button>
+  </div>
+
+  <!-- ================= OVERVIEW ================= -->
+  <div *ngIf="activeTab==='overview'" class="p-6 space-y-6">
+
+    <!-- STAT CARDS -->
+    <div class="grid md:grid-cols-4 gap-6">
+
+      <div class="bg-white p-5 rounded shadow flex items-center gap-4 h-28">
+        <fa-icon [icon]="icons.users" class="text-3xl text-green-500"></fa-icon>
+        <div>
+          <p class="text-gray-500 text-sm">Total Users</p>
+          <h2 class="text-2xl font-bold">{{ stats.totalUsers }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow flex items-center gap-4 h-28">
+        <fa-icon [icon]="icons.volunteer" class="text-3xl text-yellow-500"></fa-icon>
+        <div>
+          <p class="text-gray-500 text-sm">Volunteers</p>
+          <h2 class="text-2xl font-bold">{{ stats.volunteers }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow flex items-center gap-4 h-28">
+        <fa-icon [icon]="icons.complaint" class="text-3xl text-red-500"></fa-icon>
+        <div>
+          <p class="text-gray-500 text-sm">Complaints</p>
+          <h2 class="text-2xl font-bold">{{ stats.complaints }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow flex items-center gap-4 h-28">
+        <fa-icon [icon]="icons.resolved" class="text-3xl text-blue-500"></fa-icon>
+        <div>
+          <p class="text-gray-500 text-sm">Resolved</p>
+          <h2 class="text-2xl font-bold">{{ stats.resolved }}</h2>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white p-4 h-72 rounded shadow">
+        <canvas id="userVsVolunteerChart"></canvas>
+      </div>
+
+      <div class="bg-white p-4 h-72 rounded shadow">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+
+    <!-- TREND + REPORT -->
+    <div class="bg-white p-4 rounded shadow">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold">Complaint Trend</h3>
+
+        <button
+          (click)="generateReport()"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2 shadow"
+        >
+          
+          Generate Report (PDF)
+        </button>
+      </div>
+
+      <div class="h-72">
+        <canvas id="complaintTrendChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+<!-- MANAGE USERS -->
+<div *ngIf="activeTab==='manageUsers'" class="p-6">
+
+  <h2 class="text-2xl font-semibold mb-6 text-gray-800">Manage Users</h2>
+
+  <!-- Filters -->
+  <div class="bg-white p-5 rounded-2xl shadow-lg flex flex-col md:flex-row gap-6 mb-6 items-center">
+
+    <!-- Filter by Location -->
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1">
+      <label class="font-medium text-gray-700">Filter by Location:</label>
+      <select
+        [(ngModel)]="filterLocation"
+        class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-auto focus:ring-2 focus:ring-green-500">
+        <option value="all">All Locations</option>
+        <option *ngFor="let loc of locations" [value]="loc">{{ loc }}</option>
+      </select>
+    </div>
+
+    <!-- Filter by Role -->
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1">
+      <label class="font-medium text-gray-700">Filter by Role:</label>
+      <select
+        [(ngModel)]="filterRole"
+        class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-auto focus:ring-2 focus:ring-green-500">
+        <option value="all">All Roles</option>
+        <option value="user">User</option>
+        <option value="volunteer">Volunteer</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <!-- Search Location -->
+    <div class="flex flex-1 items-center gap-3 w-full md:w-auto">
+      <label class="font-medium text-gray-700 whitespace-nowrap">Search Location:</label>
+      <input
+        type="text"
+        [(ngModel)]="searchLocation"
+        placeholder="Type location..."
+        class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-64 focus:ring-2 focus:ring-green-500">
+    </div>
+
+  </div>
+
+  <!-- Users Table -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-x-auto">
+    <table class="min-w-full text-sm text-left">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="px-6 py-3">Name</th>
+          <th class="px-6 py-3">Email</th>
+          <th class="px-6 py-3">Role</th>
+          <th class="px-6 py-3">Location</th>
+          <th class="px-6 py-3">Joined</th>
+          <th class="px-6 py-3">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="6" class="text-center py-6 text-gray-500">
+            No users found.
+          </td>
+        </tr>
+
+        <tr *ngFor="let u of filteredUsers" class="border-b hover:bg-gray-50 transition">
+
+          <td class="px-6 py-4 font-medium text-gray-800">{{ u.username }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ u.email }}</td>
+
+          <!-- Role -->
+          <td class="px-6 py-4">
+            <ng-container *ngIf="editUserId === u._id; else roleBadge">
+              <select
+                [(ngModel)]="editedRole"
+                class="border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
+                <option value="user">User</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </ng-container>
+
+            <ng-template #roleBadge>
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="roleColors[u.role]">
+                {{ u.role }}
+              </span>
+            </ng-template>
+          </td>
+
+          <td class="px-6 py-4 text-gray-600">{{ u.address || 'N/A' }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ u.createdAt | date }}</td>
+
+          <!-- Actions -->
+          <td class="px-6 py-4 flex gap-4">
+            <ng-container *ngIf="editUserId === u._id; else editBtn">
+              <button class="text-green-600 hover:underline" (click)="saveRole(u._id)">Save</button>
+              <button class="text-gray-600 hover:underline" (click)="editUserId=null">Cancel</button>
+            </ng-container>
+
+            <ng-template #editBtn>
+              <button
+                class="text-blue-500 hover:underline font-medium"
+                title="Edit"
+                (click)="editUserId=u._id; editedRole=u.role">
+               <fa-icon [icon] = "icons.edit"></fa-icon>
+              </button>
+            </ng-template>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ================= VIEW COMPLAINTS ================= -->
+<div *ngIf="activeTab === 'viewComplaints'" class="p-6">
+
+  <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+    View Complaints
+  </h2>
+
+  <div class="bg-white p-6 rounded-2xl shadow-lg overflow-x-auto">
+    <table class="min-w-full text-sm text-left border-collapse">
+
+      <!-- TABLE HEADER -->
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="px-5 py-3">Complaint ID</th>
+          <th class="px-5 py-3">Title</th>
+          <th class="px-5 py-3">User</th>
+          <th class="px-5 py-3">Status</th>
+          <th class="px-5 py-3">Volunteer</th>
+          <th class="px-5 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <!-- TABLE BODY -->
+      <tbody>
+
+        <tr
+          *ngFor="let c of complaintList"
+          class="bg-white rounded-xl shadow-md my-4 hover:shadow-xl transition-all duration-200"
+        >
+
+          <!-- Complaint ID -->
+          <td class="px-5 py-4 font-medium text-gray-800">
+            {{ c._id }}
+          </td>
+
+          <!-- Title -->
+          <td class="px-5 py-4 font-medium text-gray-700">
+            {{ c.title }}
+          </td>
+
+          <!-- User -->
+          <td class="px-5 py-4 text-gray-600">
+            {{ c.user?.username || 'N/A' }}
+          </td>
+
+          <!-- STATUS BADGE -->
+          <td class="px-5 py-4">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-semibold capitalize shadow-sm border"
+              [ngClass]="{
+                'bg-red-100 text-red-600 border-red-200': c.status === 'Pending',
+                'bg-yellow-100 text-yellow-600 border-yellow-200': c.status === 'In Progress',
+                'bg-green-100 text-green-600 border-green-200': c.status === 'Resolved',
+                'bg-blue-100 text-blue-600 border-blue-200': c.status === 'Assigned'
+              }"
+            >
+              {{ c.status || 'Unknown' }}
+            </span>
+          </td>
+
+          <!-- VOLUNTEER COLUMN -->
+          <td class="px-5 py-4 text-gray-600">
+
+            <!-- Assigned volunteer -->
+            <span *ngIf="c.volunteer">
+              {{ c.volunteer.username }}
+            </span>
+
+            <!-- Unassigned -->
+            <span *ngIf="!c.volunteer">
+              Unassigned
+            </span>
+
+            <!-- Assign Button -->
+            <div *ngIf="!c.volunteer" class="mt-2">
+              <button
+                class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-blue-200 transition"
+                (click)="fetchNearbyVolunteers(c._id)"
+              >
+                Assign
+              </button>
+
+              <!-- Nearby Volunteers Dropdown -->
+              <select
+                *ngIf="nearbyVolunteers[c._id]?.length"
+                #volunteerSelect
+                class="border border-gray-300 rounded-lg px-2 py-1 mt-1 text-sm w-full"
+                (change)="assignVolunteer(c._id, volunteerSelect.value)"
+              >
+                <option value="" selected disabled>
+                  Select Volunteer
+                </option>
+                <option
+                  *ngFor="let v of nearbyVolunteers[c._id]"
+                  [value]="v._id"
+                >
+                  {{ v.username }} ({{ v.distance }} km)
+                </option>
+              </select>
+            </div>
+
+          </td>
+
+          <!-- ACTIONS -->
+          <td class="px-5 py-4 flex justify-center items-center gap-3">
+
+            <!-- Status Change -->
+            <select
+              [(ngModel)]="c.status"
+              (change)="updateStatus(c._id, c.status)"
+              class="border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+              [ngClass]="{
+                'text-red-600': c.status === 'Pending',
+                'text-yellow-600': c.status === 'In Progress',
+                'text-green-600': c.status === 'Resolved',
+                'text-blue-600': c.status === 'Assigned'
+              }"
+            >
+              <option value="Pending" class="text-red-600">Pending</option>
+              <option value="In Progress" class="text-yellow-600">In Progress</option>
+              <option value="Assigned" class="text-blue-600">Assigned</option>
+              <option value="Resolved" class="text-green-600">Resolved</option>
+            </select>
+
+            <!-- Delete -->
+            <fa-icon
+              [icon]="icons.delete"
+              class="text-red-500 cursor-pointer hover:text-red-700 transition"
+              (click)="deleteComplaint(c._id)"
+            ></fa-icon>
+
+          </td>
+
+        </tr>
+
+        <!-- EMPTY STATE -->
+        <tr *ngIf="complaintList.length === 0">
+          <td colspan="6" class="text-center py-6 text-gray-500">
+            No complaints found.
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+</div>

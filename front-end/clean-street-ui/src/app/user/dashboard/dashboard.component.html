@@ -1,0 +1,330 @@
+<!-- LOADING -->
+<div *ngIf="!user" class="text-center mt-10 font-semibold">
+  Loading Dashboard...
+</div>
+
+<!-- DASHBOARD -->
+<div *ngIf="user" class="min-h-screen bg-gray-100 text-black">
+
+  <!-- NAVBAR -->
+  <header class="flex flex-col md:flex-row justify-between items-center px-6 py-4 shadow-md bg-gray-50">
+    <!-- LOGO -->
+    <div class="flex items-center space-x-2 mb-2 md:mb-0">
+      <img src="/assets/images/logo.png" class="w-6 h-6" />
+      <span class="font-bold text-xl">CleanStreet</span>
+    </div>
+
+    <!-- NAV LINKS -->
+    <nav class="flex flex-wrap justify-center md:justify-start space-x-4 md:space-x-8 text-gray-700 mb-2 md:mb-0">
+      <a routerLink="/dashboard"
+         routerLinkActive="text-blue-600 font-bold"
+         class="hover:underline font-medium">
+        Dashboard
+      </a>
+      <a routerLink="/report"
+         routerLinkActive="text-blue-600 font-bold"
+         class="hover:underline font-medium">
+        Report Issue
+      </a>
+      <a routerLink="/complaints"
+         routerLinkActive="text-blue-600 font-bold"
+         class="hover:underline font-medium">
+        View Complaints
+      </a>
+      <a routerLink="/admin-logs"
+         routerLinkActive="text-blue-600 font-bold"
+         class="hover:underline font-medium">
+        Admin Logs
+      </a>
+    </nav>
+
+    <!-- USER -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 cursor-pointer" routerLink="/profile">
+        <ng-container *ngIf="user.profilePic; else avatar">
+          <img [src]="user.profilePic"
+               class="w-8 h-8 rounded-full object-cover" />
+        </ng-container>
+        <ng-template #avatar>
+          <span class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300">👤</span>
+        </ng-template>
+        <span class="font-medium">{{ user.username }}</span>
+      </div>
+
+      <button (click)="logout()"
+              class="px-4 py-1 rounded-full bg-blue-500 text-white font-semibold hover:bg-red-600 transition">
+        Sign out
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="mx-6 mt-2">
+    <div class="w-full h-40 rounded-2xl bg-cover bg-center flex items-center px-6 text-white"
+         style="background-image: url('/assets/images/dashboard-bg.png')">
+      <div>
+        <h2 class="text-2xl font-semibold">Keep Our City Clean Together</h2>
+        <p class="text-sm mt-1">
+          Report issues, track progress, and help maintain our community
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<!-- MAIN -->
+<div class="mx-6 mt-6">
+  <main class="flex flex-col w-full space-y-6">
+
+    <!-- STATS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+      <div class="bg-white rounded-2xl shadow-lg flex flex-col items-center py-6">
+        <p class="text-sm">Total</p>
+        <p class="text-3xl font-bold">{{ stats.total }}</p>
+        <span class="text-red-500 text-xl mt-2">⚠️</span>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg flex flex-col items-center py-6">
+        <p class="text-sm">Pending</p>
+        <p class="text-3xl font-bold">{{ stats.pending }}</p>
+        <span class="text-blue-500 text-xl mt-2">⏳</span>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg flex flex-col items-center py-6">
+        <p class="text-sm">Resolved</p>
+        <p class="text-3xl font-bold">{{ stats.resolved }}</p>
+        <span class="text-green-500 text-xl mt-2">✔️</span>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg flex flex-col items-center py-6">
+        <p class="text-sm">In Progress</p>
+        <p class="text-3xl font-bold">{{ stats.inProgress }}</p>
+        <span class="text-yellow-500 text-xl mt-2">🔄</span>
+      </div>
+    </div>
+
+    <!-- COMPLAINTS -->
+    <div class="bg-white rounded-2xl shadow-lg w-full p-6">
+      <h3 class="font-semibold text-lg mb-4">
+        {{ user.role === 'volunteer' ? 'My Assigned Complaints' : 'My Reported Complaints' }}
+      </h3>
+
+      <div *ngIf="complaints.length; else empty"
+           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div *ngFor="let c of complaints"
+             class="bg-gray-50 rounded-xl shadow-md border border-gray-200 p-4 flex flex-col">
+
+          <img *ngIf="c.photo"
+               [src]="c.photo"
+               class="w-full h-56 object-cover rounded-lg mb-3" />
+
+          <p class="font-semibold text-lg">{{ c.title }}</p>
+          <p class="text-sm text-gray-600">{{ c.description }}</p>
+
+          <p class="text-sm text-gray-500 mt-1">
+            <strong>Location:</strong>
+            {{ c.location?.address || c.location || 'Not specified' }}
+          </p>
+
+          <p class="text-sm text-gray-500 mt-1">
+            <strong>Reported By:</strong> {{ c.user?.username || 'N/A' }}
+          </p>
+
+          <p class="text-sm text-gray-500 mt-1" *ngIf="c.volunteer">
+  <strong>Volunteer:</strong> {{ c.volunteer?.username }}
+</p>
+
+          <p class="text-sm text-gray-500 mt-1">
+            <strong>Created At:</strong> {{ c.createdAt | date:'medium' }}
+          </p>
+
+         
+
+          <div class="mt-3 flex items-center gap-2 flex-wrap">
+
+  <span
+    class="px-3 py-1 rounded-full text-xs font-semibold"
+    [ngClass]="{
+      'bg-green-200 text-green-800': c.status === 'Resolved',
+      'bg-yellow-200 text-yellow-800': c.status === 'In Progress',
+      'bg-blue-200 text-blue-800': c.status === 'Pending'
+    }">
+    {{ c.status | uppercase }}
+  </span>
+
+  <button
+    *ngIf="user.role === 'volunteer'"
+    (click)="updateStatus(c._id, 'In Progress')"
+    class="px-2 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">
+    In Progress
+  </button>
+
+  <button
+    *ngIf="user.role === 'volunteer'"
+    (click)="updateStatus(c._id, 'Resolved')"
+    class="px-2 py-1 rounded bg-green-500 text-white hover:bg-green-600 text-sm">
+    Resolve
+  </button>
+
+  <button
+    *ngIf="user.role === 'volunteer'"
+    (click)="unassign(c._id)"
+    class="px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600 text-sm">
+    Unassign
+  </button>
+
+</div>
+
+          <!-- VOLUNTEER ACTIONS -->
+<div *ngIf="user.role === 'volunteer'" class="mt-3 flex gap-2 flex-wrap">
+
+
+
+</div>
+
+        </div>
+      </div>
+
+      <ng-template #empty>
+        <p class="text-gray-500 text-sm text-center">No complaints yet</p>
+      </ng-template>
+    </div>
+
+    <!-- NEARBY COMPLAINTS (VOLUNTEER ONLY) -->
+<div *ngIf="user.role === 'volunteer'"
+     class="bg-white rounded-2xl shadow-lg w-full p-6">
+
+  <h3 class="font-semibold text-lg mb-4">
+    Nearby Complaints
+  </h3>
+
+
+  <div *ngIf="nearbyComplaints && nearbyComplaints.length > 0; else noNearby"
+       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    
+
+
+
+<div *ngFor="let c of nearbyComplaints"
+     class="bg-gray-50 rounded-xl shadow-md border border-gray-200 p-4 flex flex-col">
+
+  <img *ngIf="c.photo"
+       [src]="c.photo"
+       class="w-full h-48 object-cover rounded mb-3" />
+
+  <p class="font-semibold text-lg">{{ c.title }}</p>
+
+  <p class="text-sm text-gray-600">
+    {{ c.description }}
+  </p>
+
+  <p class="text-sm text-gray-500 mt-1">
+    <strong>Location:</strong>
+    {{ c.location?.address || c.location || 'Not specified' }}
+  </p>
+
+  <div class="flex gap-2 mt-3">
+
+   
+
+    <button
+  (click)="viewComplaint(c)"
+  class="px-3 py-1 rounded bg-blue-500 text-white text-sm hover:bg-blue-600">
+  View
+</button>
+
+    <button
+      (click)="assignToMe(c._id)"
+      class="px-3 py-1 rounded bg-purple-500 text-white text-sm hover:bg-purple-600">
+      Assign to Me
+    </button>
+
+  </div>
+
+</div>
+  </div>
+
+  <ng-template #noNearby>
+    <p class="text-gray-500 text-sm text-center">
+      No nearby complaints
+    </p>
+  </ng-template>
+</div>
+  </main>
+
+
+<!-- VIEW COMPLAINT MODAL -->
+
+<div *ngIf="viewingComplaint"
+     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+
+  <div class="bg-white rounded-xl p-6 w-11/12 md:w-1/2 relative">
+
+    <button
+      (click)="closeComplaint()"
+      class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+      ✖
+    </button>
+
+    <h3 class="font-semibold text-xl">
+      {{ viewingComplaint.title }}
+    </h3>
+
+    <img *ngIf="viewingComplaint.photo"
+         [src]="viewingComplaint.photo"
+         class="w-full h-64 object-cover rounded mt-2 mb-3">
+
+    <p class="text-gray-700">
+      {{ viewingComplaint.description }}
+    </p>
+
+    <p class="text-gray-500 mt-1">
+      <strong>Location:</strong>
+      {{ viewingComplaint.location?.address || viewingComplaint.location }}
+    </p>
+
+    <p class="text-gray-500 mt-1">
+      <strong>Status:</strong> {{ viewingComplaint.status }}
+    </p>
+
+    <div class="mt-4 flex gap-3 flex-wrap">
+
+      <button
+        (click)="updateStatus(viewingComplaint._id,'In Progress')"
+        class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+        In Progress
+      </button>
+
+      <button
+        (click)="updateStatus(viewingComplaint._id,'Resolved')"
+        class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+        Resolve
+      </button>
+
+      <button
+        (click)="unassign(viewingComplaint._id)"
+        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+        Unassign
+      </button>
+
+      <button
+        (click)="assignToMe(viewingComplaint._id)"
+        class="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 text-sm">
+        Assign to Me
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+
+
+

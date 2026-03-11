@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- HEADER -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="flex items-center justify-between px-12 py-4">
+
+      <!-- LOGO -->
+      <div class="flex items-center space-x-3">
+        <img src="assets/images/logo.png" alt="Clean Street" class="w-10 h-10" />
+        <h1 class="text-2xl font-bold text-black">Clean Street</h1>
+      </div>
+
+      <!-- NAV -->
+      <nav class="flex gap-10 text-gray-700 font-medium">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Dashboard
+        </a>
+
+        <a
+          routerLink="/report"
+          routerLinkActive="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
+        >
+          Report Issue
+        </a>
+
+        <a
+          routerLink="/complaints"
+          routerLinkActive="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
+        >
+          Complaints
+        </a>
+
+        <a
+          routerLink="/admin-logs"
+          class="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
+        >
+          Admin Logs
+        </a>
+      </nav>
+
+      <!-- LOGOUT -->
+      <button
+        (click)="logout()"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+      >
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="px-12 py-10">
+
+    <!-- TITLE + LIVE -->
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-semibold text-gray-800">🧾 Admin Logs</h2>
+
+      <!-- LIVE INDICATOR -->
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-3 w-3">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75">
+          </span>
+          <span
+            class="relative inline-flex rounded-full h-3 w-3 bg-green-500">
+          </span>
+        </span>
+        <span class="text-sm text-gray-600">Live</span>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <p
+      *ngIf="loading"
+      class="text-center text-gray-500 text-lg mt-16 animate-pulse"
+    >
+      Loading logs...
+    </p>
+
+    <!-- EMPTY -->
+    <p
+      *ngIf="!loading && logs.length === 0"
+      class="text-center text-gray-500 text-lg mt-16"
+    >
+      No admin activity found.
+    </p>
+
+    <!-- TABLE -->
+    <div
+      *ngIf="!loading && logs.length"
+      class="overflow-x-auto shadow rounded-lg bg-white"
+    >
+      <table class="min-w-full divide-y divide-gray-200">
+
+        <!-- HEADER -->
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">
+              Admin
+            </th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">
+              Action
+            </th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">
+              Complaint
+            </th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">
+              Volunteer
+            </th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">
+              Status
+            </th>
+            <th class="px-6 py-3 text-right text-sm font-medium text-gray-600">
+              Time
+            </th>
+          </tr>
+        </thead>
+
+        <!-- BODY -->
+        <tbody class="divide-y divide-gray-200">
+          <tr
+            *ngFor="let log of currentLogs"
+            class="hover:bg-gray-50 transition"
+          >
+            <td class="px-6 py-4 text-sm font-medium text-gray-800">
+              {{ log.adminName }}
+            </td>
+
+            <!-- ACTION -->
+            <td
+              class="px-6 py-4 text-sm"
+              [ngClass]="actionClass(log.action)"
+            >
+              {{ log.action }}
+            </td>
+
+            <!-- COMPLAINT -->
+            <td class="px-6 py-4 text-sm font-bold">
+              {{ log.complaintTitle || '-' }}
+            </td>
+
+            <!-- VOLUNTEER -->
+            <td class="px-6 py-4 text-sm text-gray-700">
+              {{ log.volunteerName || '-' }}
+            </td>
+
+            <!-- STATUS -->
+            <td
+              class="px-6 py-4 text-sm"
+              [ngClass]="actionClass(log.status)"
+            >
+              {{ log.status || '-' }}
+            </td>
+
+            <!-- TIME -->
+            <td class="px-6 py-4 text-sm text-gray-500 text-right">
+              {{ formatTime(log.createdAt) }}
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div
+      class="flex justify-center items-center gap-4 mt-6"
+      *ngIf="totalPages > 1"
+    >
+      <button
+        (click)="prevPage()"
+        [disabled]="currentPage === 1"
+        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        Previous
+      </button>
+
+      <span class="text-gray-700 font-medium">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+
+  </main>
+</div>

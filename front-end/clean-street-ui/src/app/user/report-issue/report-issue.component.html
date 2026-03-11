@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Navbar -->
+  <nav class="w-full bg-white shadow-sm p-4 flex flex-wrap justify-between items-center gap-3">
+    <div class="flex items-center space-x-2">
+      <img src="assets/images/logo.png" class="w-6 h-6" />
+      <span class="font-bold text-xl">CleanStreet</span>
+    </div>
+
+    <div class="flex flex-wrap gap-4 text-gray-700">
+      <a routerLink="/dashboard" class="hover:text-blue-600 font-medium">Dashboard</a>
+      <a routerLink="/report" class="text-blue-600 font-semibold">Report Issue</a>
+      <a routerLink="/complaints" class="hover:text-blue-600 font-medium">View Complaints</a>
+      <a routerLink="/profile" class="hover:text-blue-600 font-medium">Profile</a>
+    </div>
+
+    <button
+      routerLink="/login"
+      class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700"
+    >
+      Logout
+    </button>
+  </nav>
+
+  <!-- Form Container -->
+  <div class="flex-grow flex justify-center items-start py-10 px-4">
+    <div class="bg-white w-full max-w-4xl shadow-lg rounded-xl p-6 md:p-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">
+        Report a Civic Issue
+      </h2>
+
+      <form (ngSubmit)="submit()" class="space-y-5" autocomplete="on">
+
+        <!-- Issue Title & Issue Type -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Issue Title</label>
+            <input
+              [(ngModel)]="formData.issueTitle"
+              name="issueTitle"
+              placeholder="Brief description of the issue"
+              class="w-full border-2 border-gray-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Issue Type</label>
+            <select
+              [(ngModel)]="formData.issueType"
+              name="issueType"
+              class="w-full border-2 border-gray-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select issue type</option>
+              <option>Garbage</option>
+              <option>Road Damage</option>
+              <option>Water Leakage</option>
+              <option>Streetlight</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Priority & Address -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Priority Level</label>
+            <select
+              [(ngModel)]="formData.priorityLevel"
+              name="priorityLevel"
+              class="w-full border-2 border-gray-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select priority</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Address</label>
+            <input
+              [(ngModel)]="formData.address"
+              (input)="onAddressChange()"
+              name="address"
+              placeholder="Enter street address"
+              class="w-full border-2 border-gray-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            <p *ngIf="fetchingAddress" class="text-sm text-blue-600 mt-1">
+              ⏳ Locating on map...
+            </p>
+            <p *ngIf="addressError" class="text-sm text-red-500 mt-1">
+              {{ addressError }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Landmark -->
+        <div>
+          <label class="block text-grey-700 font-medium mb-1">
+            Nearby Landmark (Optional)
+          </label>
+          <input
+            [(ngModel)]="formData.landmark"
+            name="landmark"
+            placeholder="e.g., Near City Hall"
+            class="w-full border-2 border-gray-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" 
+          />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Description</label>
+          <textarea
+            [(ngModel)]="formData.description"
+            name="description"
+            rows="4"
+            placeholder="Describe the issue in detail..."
+            class="w-full border-2 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 border-gray-800"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Upload Photos -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">
+            Upload Photos (You can select multiple)
+          </label>
+          <input
+            type="file"
+            multiple
+            (change)="onFileChange($event)"
+            class="w-full border-2 border-gray-800 rounded-lg px-3 py-2"
+          />
+
+          <div *ngIf="previews.length" class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
+            <img
+              *ngFor="let img of previews"
+              [src]="img"
+              class="h-40 w-full object-cover rounded-lg shadow border"
+            />
+          </div>
+        </div>
+
+         <!-- Map Section -->
+        <div class="space-y-2">
+          <label class="block text-gray-700 font-medium">
+            Select Location on Map
+          </label>
+
+          <p class="text-sm text-gray-500">
+            📍 Click on the map to mark the exact issue location
+          </p>
+
+          <div
+            id="map"
+            class="w-full h-72 rounded-lg border shadow-md"
+          ></div>
+        </div>
+
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="submitting"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg mt-4"
+        >
+          {{ submitting ? 'Submitting...' : 'Submit Complaint' }}
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,229 @@
+<!-- Wrapper -->
+<div class="min-h-screen bg-gray-50 pt-[90px] px-4 sm:px-6 lg:px-10">
+
+  <!-- Navbar -->
+  <nav
+    class="fixed top-0 left-0 w-full h-14 bg-white shadow-sm p-4 flex flex-wrap justify-between items-center z-50">
+    <div class="flex items-center space-x-2">
+      <img src="assets/images/logo.png" alt="logo" class="w-6 h-6" />
+      <span class="font-bold text-xl">CleanStreet</span>
+    </div>
+
+    <div class="flex flex-wrap gap-4 text-gray-700">
+      <a routerLink="/dashboard" class="hover:text-blue-600 font-medium">Dashboard</a>
+      <a routerLink="/report" class="hover:text-blue-600 font-medium">Report Issue</a>
+      <a routerLink="/complaints" class="hover:text-blue-600 font-medium">View Complaints</a>
+      <a routerLink="/profile" class="hover:text-blue-600 font-medium">Profile</a>
+    </div>
+
+    <button
+      (click)="logout()"
+      class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700">
+      Logout
+    </button>
+  </nav>
+
+  <!-- Profile Section -->
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+
+    <!-- Left Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
+
+      <div class="relative w-32 h-32 sm:w-36 sm:h-36">
+        <img
+          *ngIf="formData.profilePic"
+          [src]="formData.profilePic"
+          class="w-full h-full rounded-full object-cover border-4 border-gray-200"
+          alt="Profile" />
+
+        <label
+          class="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700">
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="onFileChange($event)" />
+          📷
+        </label>
+      </div>
+
+      <h2 class="mt-4 text-xl font-semibold text-gray-800">
+        {{ formData.fullName || 'User' }}
+      </h2>
+      <p class="text-gray-500">&#64;{{ formData.username }}</p>
+
+      <span class="mt-2 bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
+        Citizen
+      </span>
+
+      <p class="text-gray-600 text-sm mt-4">
+        {{ formData.bio }}
+      </p>
+
+      <p class="text-xs text-gray-400 mt-2">
+        Member since
+        {{ formData.joinDate | date:'dd MMM yyyy'}}
+      </p>
+
+      <div class="w-full mt-6 flex flex-col gap-3">
+        <button
+          (click)="showPasswordModal = true"
+          class="w-full py-2 border rounded-lg hover:bg-gray-100">
+          Change Password
+        </button>
+        <button
+          class="w-full py-2 border rounded-lg hover:bg-gray-100">
+          Privacy Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">
+          Account Information
+        </h3>
+        <button
+          (click)="editMode = !editMode"
+          class="text-blue-600 font-medium hover:underline">
+          {{ editMode ? 'Cancel' : 'Edit' }}
+        </button>
+      </div>
+
+      <!-- Form -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <!-- Username -->
+        <div>
+          <label class="block text-sm text-gray-600">Username</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.username"
+            [disabled]="!editMode"
+            class="w-full border rounded-lg px-3 py-2 mt-1"
+            [class.bg-gray-100]="!editMode" />
+        </div>
+
+        <!-- Full Name -->
+        <div>
+          <label class="block text-sm text-gray-600">Full Name</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.fullName"
+            [disabled]="!editMode"
+            class="w-full border rounded-lg px-3 py-2 mt-1"
+            [class.bg-gray-100]="!editMode" />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm text-gray-600">Email</label>
+          <input
+            type="email"
+            [(ngModel)]="formData.email"
+            disabled
+            class="w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed" />
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm text-gray-600">Phone</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.phone"
+            [disabled]="!editMode"
+            class="w-full border rounded-lg px-3 py-2 mt-1"
+            [class.bg-gray-100]="!editMode" />
+        </div>
+
+        <!-- Location -->
+        <div>
+          <label class="block text-sm text-gray-600">Location</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.location"
+            [disabled]="!editMode"
+            class="w-full border rounded-lg px-3 py-2 mt-1"
+            [class.bg-gray-100]="!editMode" />
+        </div>
+
+        <!-- Bio -->
+        <div class="sm:col-span-2">
+          <label class="block text-sm text-gray-600">Bio</label>
+          <textarea
+            rows="3"
+            [(ngModel)]="formData.bio"
+            [disabled]="!editMode"
+            class="w-full border rounded-lg px-3 py-2 mt-1"
+            [class.bg-gray-100]="!editMode"></textarea>
+        </div>
+      </div>
+
+      <!-- Save Buttons -->
+      <div *ngIf="editMode" class="flex justify-end gap-3 mt-6">
+        <button
+          (click)="editMode = false"
+          class="px-4 py-2 border rounded-lg hover:bg-gray-100">
+          Cancel
+        </button>
+        <button
+          (click)="saveProfile()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Save Changes
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Password Modal -->
+  <div
+    *ngIf="showPasswordModal"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 w-80 sm:w-96">
+      <h2 class="text-lg font-semibold mb-4">Change Password</h2>
+
+      <input
+        type="password"
+        placeholder="Old Password"
+        [(ngModel)]="passwords.oldPassword"
+        class="w-full border rounded-lg px-3 py-2 mb-3" />
+
+      <input
+        type="password"
+        placeholder="New Password"
+        [(ngModel)]="passwords.newPassword"
+        class="w-full border rounded-lg px-3 py-2 mb-3" />
+
+      <input
+        type="password"
+        placeholder="Confirm New Password"
+        [(ngModel)]="passwords.confirmPassword"
+        class="w-full border rounded-lg px-3 py-2 mb-4" />
+
+      <div class="flex justify-end gap-3">
+        <button
+          (click)="showPasswordModal = false"
+          class="px-4 py-2 border rounded-lg">
+          Cancel
+        </button>
+        <button
+          (click)="changePassword()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+

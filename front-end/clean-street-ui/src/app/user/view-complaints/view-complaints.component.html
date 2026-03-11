@@ -1,0 +1,151 @@
+<!-- Loading -->
+<div *ngIf="loading" class="text-center mt-20 text-gray-500 text-lg">
+  Loading complaints...
+</div>
+
+<!-- Error -->
+<div *ngIf="error" class="text-center mt-20 text-red-500 text-lg">
+  {{ error }}
+</div>
+
+<!-- Empty -->
+<div *ngIf="!loading && complaints.length === 0"
+     class="text-center mt-20 text-gray-500 text-lg">
+  No complaints found.
+</div>
+
+<div *ngIf="!loading && complaints.length > 0"
+     class="min-h-screen bg-gray-100 p-6">
+
+  <!-- Navbar -->
+  <div class="flex justify-between items-center bg-white shadow-md p-4 rounded-xl mb-6">
+    <div class="flex items-center gap-3">
+      <img src="/assets/images/logo.png" class="w-10 h-10 rounded-full object-cover" />
+      <h1 class="text-2xl font-bold">Clean Street</h1>
+    </div>
+
+    <div class="flex gap-6">
+      <button (click)="go('/dashboard')">Dashboard</button>
+      <button (click)="go('/report')">Report Issue</button>
+      <button (click)="go('/profile')">Profile</button>
+    </div>
+  </div>
+
+  <!-- Complaints Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let c of complaints"
+         class="bg-white rounded-xl shadow-md p-4">
+
+      <div class="w-full h-48 mb-3">
+        <img *ngIf="c.photos?.length"
+             [src]="c.photos[0]"
+             class="w-full h-full object-cover rounded-lg" />
+        <div *ngIf="!c.photos?.length"
+             class="w-full h-full bg-gray-200 flex items-center justify-center">
+          No image
+        </div>
+      </div>
+
+      <h2 class="text-lg font-bold">{{ c.title || 'Untitled Complaint' }}</h2>
+      <p class="text-sm text-gray-600">{{ c.description || 'No description' }}</p>
+
+      <div class="text-sm text-gray-500 mt-2">
+        <div>📍 {{ c.location || c.address || 'N/A' }}</div>
+        <div>🗓️ {{ c.createdAt | date }}</div>
+        <div>
+          ⚙️
+          <span [ngClass]="statusClass(c.status)">
+            {{ c.status || 'Pending' }}
+          </span>
+        </div>
+      </div>
+
+      <p *ngIf="c.volunteer" class="text-sm text-gray-500 mt-2">
+        👷 {{ c.volunteer.username }}
+      </p>
+
+      <button (click)="selectedComplaint = c"
+              class="w-full h-8 bg-blue-600 text-white mt-3 rounded-lg">
+        View
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="selectedComplaint"
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+  <div class="bg-white max-w-3xl w-full p-6 rounded-xl relative max-h-[90vh] overflow-y-auto">
+
+    <button (click)="selectedComplaint = null"
+            class="absolute top-3 right-4 text-2xl">✕</button>
+
+    <h2 class="text-2xl font-semibold mb-3">
+      {{ selectedComplaint.title }}
+    </h2>
+
+    <img *ngFor="let p of selectedComplaint.photos"
+         [src]="p"
+         class="w-full h-56 object-cover rounded-lg mb-2" />
+
+    <p class="mb-3">{{ selectedComplaint.description }}</p>
+
+    <!-- ✅ Status Tracker -->
+<div class="mb-4">
+  <div class="flex justify-between text-xs text-gray-500 mb-1">
+    <span>Reported</span>
+    <span>In Progress</span>
+    <span>Completed</span>
+  </div>
+
+  <div class="w-full bg-gray-300 h-2 rounded-full">
+    <div
+      class="h-2 rounded-full transition-all duration-500"
+      [ngClass]="{
+        'bg-green-500 w-full': selectedComplaint.status === 'Resolved',
+        'bg-yellow-400 w-1/2': selectedComplaint.status === 'In Progress',
+        'bg-gray-400 w-1/4':
+          selectedComplaint.status !== 'Resolved' &&
+          selectedComplaint.status !== 'In Progress'
+      }"
+    ></div>
+  </div>
+</div>
+
+
+    <!-- Voting -->
+    <div class="flex gap-5 mb-6">
+      <button (click)="handleVote(selectedComplaint._id, 'up')" class="bg-green-600 rounded-md text-white ">
+        👍 {{ selectedComplaint.upvotes?.length || 0 }}
+      </button>
+      <button (click)="handleVote(selectedComplaint._id, 'down')" class="bg-red-600 rounded-md text-white ">
+        👎 {{ selectedComplaint.downvotes?.length || 0 }}
+      </button>
+    </div>
+
+    <!-- Comments -->
+    <h3 class="font-semibold mb-2">Comments</h3>
+
+    <div class="max-h-48 overflow-y-auto bg-gray-50 p-2 rounded-lg">
+      <div *ngFor="let com of selectedComplaint.comments">
+        <div class="text-xs text-gray-400">
+          {{ com.createdAt | date:'short' }}
+        </div>
+        <div>💬 {{ com.text }}</div>
+      </div>
+
+      <p *ngIf="!selectedComplaint.comments?.length"
+         class="text-sm text-gray-400">
+        No comments yet
+      </p>
+    </div>
+
+    <div class="flex gap-2 mt-2">
+      <input [(ngModel)]="comment"
+             class="flex-grow border rounded-lg px-3 py-1.5"
+             placeholder="Add a comment..." />
+      <button (click)="handleComment()"  class="w-16 bg-blue-600 text-white  rounded-lg">Post</button>
+    </div>
+  </div>
+</div>

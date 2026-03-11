@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+# Environment variables (backend secrets)
+.env
+
+# Angular build files
+dist/
+.angular/
+
+# Build folders
+build/
+coverage/
+
+# IDE files
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
