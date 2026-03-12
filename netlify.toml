@@ -1,5 +1,5 @@
-[build]
-  publish = "front-end/clean-street-ui/dist/clean-street-ui"
+  [build]
+  publish = "dist/clean-street-ui"
 
 [[redirects]]
   from = "/*"
