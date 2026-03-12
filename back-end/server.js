@@ -1,4 +1,3 @@
-
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -16,16 +15,30 @@ dotenv.config();
 const app = express();
 
 // ✅ Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-  crossOriginEmbedderPolicy: false,
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
-// ✅ CORS setup for React frontend + Socket.IO
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+// ✅ Allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:4200",
+  "https://civic-issue-reporting-rearchitectured.netlify.app",
+  "https://69b2cc0ed194db00085a0b5f--civic-issue-reporting-rearchitectured.netlify.app",
+];
+
+// ✅ CORS configuration
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -41,17 +54,20 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err.message));
+  .catch((err) =>
+    console.error("❌ MongoDB connection error:", err.message)
+  );
 
 // ✅ Create HTTP + WebSocket Server
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST"],
   },
-  transports: ["websocket"], // ✅ Prevent polling issue
+  transports: ["websocket"],
 });
 
 // ✅ Attach socket instance globally
@@ -60,6 +76,7 @@ app.set("io", io);
 // ✅ Socket.IO events
 io.on("connection", (socket) => {
   console.log("🟢 Socket connected:", socket.id);
+
   socket.on("disconnect", (reason) => {
     console.log("🔴 Socket disconnected:", socket.id, "Reason:", reason);
   });
@@ -91,4 +108,6 @@ process.on("SIGINT", async () => {
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
